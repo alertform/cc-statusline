@@ -3,8 +3,8 @@
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # Use python3 if available, fall back to python
-if command -v python3 &>/dev/null; then
+if python3 -c "import sys; sys.exit(0)" &>/dev/null 2>&1; then
     python3 "$SCRIPT_DIR/statusline.py"
-else
+elif command -v python &>/dev/null; then
     python "$SCRIPT_DIR/statusline.py"
 fi
