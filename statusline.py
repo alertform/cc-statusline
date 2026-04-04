@@ -61,12 +61,13 @@ try:
                 reset_str = f" resets {reset_dt.strftime('%m/%d %H:%M')}"
             parts.append(f"7d: {pct:.0f}%{reset_str}")
 
+    line2 = []
     branch = get_git_branch()
     if branch:
-        parts.append(branch)
-    parts.append(get_cwd_short())
-    parts.append(datetime.datetime.now().strftime('%H:%M'))
+        line2.append(branch)
+    line2.append(get_cwd_short())
+    line2.append(datetime.datetime.now().strftime('%H:%M'))
 
-    print(" | ".join(parts), end='')
+    print(" | ".join(parts) + "\n" + " | ".join(line2), end='')
 except Exception:
     print("Claude Code | Ctx: --", end='')
