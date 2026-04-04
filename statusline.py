@@ -31,8 +31,13 @@ try:
     seven_day = rate.get('seven_day')
     if seven_day:
         pct = seven_day.get('used_percentage')
+        resets_at = seven_day.get('resets_at')
         if pct is not None:
-            parts.append(f"7d: {pct:.0f}%")
+            reset_str = ""
+            if resets_at:
+                reset_dt = datetime.datetime.fromtimestamp(resets_at)
+                reset_str = f" resets {reset_dt.strftime('%m/%d %H:%M')}"
+            parts.append(f"7d: {pct:.0f}%{reset_str}")
 
     print(" | ".join(parts), end='')
 except Exception:
