@@ -12,6 +12,23 @@ def get_git_branch():
     except Exception:
         return None
 
+def get_battery():
+    try:
+        result = subprocess.run(
+            ['pmset', '-g', 'batt'],
+            capture_output=True, text=True, timeout=2
+        )
+        import re
+        m = re.search(r'(\d+)%;\s*(\w+)', result.stdout)
+        if not m:
+            return None
+        pct = int(m.group(1))
+        status = m.group(2)
+        icon = '🔋' if status == 'discharging' else '⚡'
+        return f"{icon}{pct}%"
+    except Exception:
+        return None
+
 def get_cwd_short():
     cwd = os.getcwd()
     home = os.path.expanduser('~')
@@ -67,6 +84,9 @@ try:
         line2.append(branch)
     line2.append(get_cwd_short())
     line2.append(datetime.datetime.now().strftime('%H:%M'))
+    battery = get_battery()
+    if battery:
+        line2.append(battery)
 
     print(" | ".join(parts) + "\n" + " | ".join(line2), end='')
 except Exception:
