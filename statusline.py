@@ -16,17 +16,32 @@ def get_git_branch():
 
 def get_battery():
     try:
-        result = subprocess.run(
-            ['pmset', '-g', 'batt'],
-            capture_output=True, text=True, timeout=2
-        )
-        import re
-        m = re.search(r'(\d+)%;\s*(\w+)', result.stdout)
-        if not m:
+        import platform
+        system = platform.system()
+        if system == 'Windows':
+            result = subprocess.run(
+                ['WMIC', 'Path', 'Win32_Battery', 'Get', 'EstimatedChargeRemaining,BatteryStatus', '/Format:List'],
+                capture_output=True, text=True, timeout=2
+            )
+            lines = {l.split('=')[0].strip(): l.split('=')[1].strip()
+                     for l in result.stdout.strip().splitlines() if '=' in l}
+            pct = int(lines.get('EstimatedChargeRemaining', ''))
+            # BatteryStatus: 1=discharging, 2=AC
+            charging = lines.get('BatteryStatus', '') != '1'
+        elif system == 'Darwin':
+            result = subprocess.run(
+                ['pmset', '-g', 'batt'],
+                capture_output=True, text=True, timeout=2
+            )
+            import re
+            m = re.search(r'(\d+)%;\s*(\w+)', result.stdout)
+            if not m:
+                return None
+            pct = int(m.group(1))
+            charging = m.group(2) != 'discharging'
+        else:
             return None
-        pct = int(m.group(1))
-        status = m.group(2)
-        icon = '🔋' if status == 'discharging' else '⚡'
+        icon = '⚡' if charging else '🔋'
         return f"{icon}{pct}%"
     except Exception:
         return None
