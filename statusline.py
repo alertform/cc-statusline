@@ -1,4 +1,6 @@
-import json, sys, datetime, subprocess, os
+import json, sys, datetime, subprocess, os, io
+
+sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
 
 def get_git_branch():
     try:
