@@ -1,4 +1,26 @@
-import json, sys, datetime
+import json, sys, datetime, subprocess, os
+
+def get_git_branch():
+    try:
+        result = subprocess.run(
+            ['git', 'branch', '--show-current'],
+            capture_output=True, text=True, timeout=2,
+            cwd=os.getcwd()
+        )
+        branch = result.stdout.strip()
+        return f"⎇ {branch}" if branch else None
+    except Exception:
+        return None
+
+def get_cwd_short():
+    cwd = os.getcwd()
+    home = os.path.expanduser('~')
+    if cwd.startswith(home):
+        cwd = '~' + cwd[len(home):]
+    parts = cwd.split('/')
+    if len(parts) > 3:
+        cwd = '/'.join(['…'] + parts[-2:])
+    return cwd
 
 try:
     data = json.load(sys.stdin)
@@ -38,6 +60,12 @@ try:
                 reset_dt = datetime.datetime.fromtimestamp(resets_at)
                 reset_str = f" resets {reset_dt.strftime('%m/%d %H:%M')}"
             parts.append(f"7d: {pct:.0f}%{reset_str}")
+
+    branch = get_git_branch()
+    if branch:
+        parts.append(branch)
+    parts.append(get_cwd_short())
+    parts.append(datetime.datetime.now().strftime('%H:%M'))
 
     print(" | ".join(parts), end='')
 except Exception:
