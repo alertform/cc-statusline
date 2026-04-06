@@ -96,6 +96,27 @@ try:
             parts.append(f"7d: {pct:.0f}%{reset_str}")
 
     line2 = []
+    # Cost
+    cost = data.get('cost', {})
+    total_cost = cost.get('total_cost_usd')
+    if total_cost is not None:
+        parts.append(f"${total_cost:.2f}")
+
+    # Code changes
+    added = cost.get('total_lines_added')
+    removed = cost.get('total_lines_removed')
+    if added is not None and removed is not None:
+        parts.append(f"+{added}/-{removed}")
+
+    # Total tokens
+    ctx = data.get('context_window', {})
+    in_tok = ctx.get('total_input_tokens', 0)
+    out_tok = ctx.get('total_output_tokens', 0)
+    total_tok = in_tok + out_tok
+    if total_tok > 0:
+        parts.append(f"{total_tok/1000:.0f}k tokens")
+
+    line2 = []
     branch = get_git_branch()
     if branch:
         line2.append(branch)
